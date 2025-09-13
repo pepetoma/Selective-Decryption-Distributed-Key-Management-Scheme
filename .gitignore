@@ -21,3 +21,13 @@ contracts/cache/
 # ローカル設定
 *.local
 *.log
+
+# ドキュメント関連
+ARCHITECTURE.md
+MPC_FLOW.md
+CIRCUITS_SPEC.md
+ONCHAIN_VERIFY.md
+SECURITY_MODEL.md
+GLOSSARY.md
+PROJECT_OVERVIEW.md
+TASKS.md
