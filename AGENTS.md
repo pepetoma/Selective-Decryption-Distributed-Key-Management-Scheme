@@ -10,6 +10,13 @@
   - あるいは: `git commit -F COMMIT_MSG.txt`（本文をファイルで渡す）
 - 1コミット=1責務（小さく、ロールバック容易に）。
 
+## Push ポリシー
+- 意味のあるまとまりごとに小さく、こまめに push します（テスト緑を前提）。
+- `main` に直接 push する場合は、ローカルでテストが通っていることを必須条件とします。
+- 強制 push（--force）は禁止。履歴の安全を優先します。
+- 大きな変更やリスクの高い変更はブランチを切り、PR（レビュー）を経て取り込みます。
+- 機密情報や巨大生成物（.gitignore 対象）は決して push しないでください。
+
 ## 生成物と大容量ファイル
 - `node_modules/`、`tools/ptau/*.ptau`、`circuits/**/build/`（r1cs/wasm/zkey/wtns/proof/public/manifest）等はコミットしない（.gitignore 済）。
 - `contracts/src/generated/Verifier.sol` は生成物。必要時は `tools/scripts/compile.js --copy` で再生成してください。
@@ -23,5 +30,4 @@
 
 ## セキュリティ/方針
 - 本番鍵・秘密値のコミット禁止。CORS の全許可など危険設定は導入しない。
-
 
