@@ -173,8 +173,13 @@ template Main() {
     signal input mu;
     signal input m;
 
-    // 出力
-    signal output ok;
+    // 公開信号（出力）: 仕様どおり [n, g, c, h_m, circuitVersion, sessionID]
+    signal output out_n;
+    signal output out_g;
+    signal output out_c;
+    signal output out_h_m;
+    signal output out_circuitVersion;
+    signal output out_sessionID;
 
     // n, g, c, h_m, circuitVersion, sessionID の範囲制約
     component rcn = RangeCheckK(N_BITS); rcn.in <== n;
@@ -242,8 +247,13 @@ template Main() {
     H.inputs[0] <== m;
     H.out === h_m;
 
-    // 全条件を満たすなら ok=1 とする（恒等チェック）
-    ok <== 1;
+    // 公開信号へ値を透過
+    out_n <== n;
+    out_g <== g;
+    out_c <== c;
+    out_h_m <== h_m;
+    out_circuitVersion <== circuitVersion;
+    out_sessionID <== sessionID;
 }
 
 component main = Main();
