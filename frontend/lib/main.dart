@@ -16,4 +16,3 @@ class SddkmApp extends StatelessWidget {
     );
   }
 }
-
