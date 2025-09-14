@@ -33,6 +33,13 @@ contract MockVerifier is IVerifier {
     }
 }
 
+// owner 以外から Registry.setAdapter を呼び出すためのヘルパ
+contract NotOwnerCaller {
+    function callSetAdapter(VerifierRegistry r, uint256 ver, address adapter) external {
+        r.setAdapter(ver, adapter);
+    }
+}
+
 contract VerifierRegistryTest {
     function _setup(uint256 circuitVersion)
         internal
@@ -79,6 +86,17 @@ contract VerifierRegistryTest {
 
         try registry.verifyAndConsume(1, 2, 3, 4, 999, 6, a, b, c_) {
             revert("should revert");
+        } catch {}
+    }
+
+    function testOnlyOwnerSetAdapter() public {
+        VerifierRegistry registry = new VerifierRegistry();
+        NotOwnerCaller caller = new NotOwnerCaller();
+        // ダミーアダプタ（実体不要）
+        address dummyAdapter = address(0x1234);
+
+        try caller.callSetAdapter(registry, 2, dummyAdapter) {
+            revert("onlyOwner should revert");
         } catch {}
     }
 }
