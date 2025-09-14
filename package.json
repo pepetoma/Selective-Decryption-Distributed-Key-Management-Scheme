@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Use npm run test:public-mutation\"",
+    "test:public-mutation": "node tools/scripts/test_public_mutation.js --vkey circuits/build/demo/paillier_demo.vkey.json --proof circuits/build/demo/paillier_demo.proof.json --public circuits/build/demo/paillier_demo.public.json"
   },
   "repository": {
     "type": "git",

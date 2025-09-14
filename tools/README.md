@@ -11,6 +11,8 @@
 - `tools/scripts/compile.js`:
   - Circom → R1CS/wasm → Groth16 setup（zkey/vkey）→ 任意で witness/proof → Verifier.sol の生成を一括実行
   - 生成物とハッシュ、公開入力順序（`[n,g,c,h_m,circuitVersion,sessionID]`）を `manifest.json` に記録
+- `tools/scripts/test_public_mutation.js`:
+  - snarkjs の `groth16.verify` を用い、元の公開入力で `true`、各要素を +1（mod Fr）に改変すると `false` になることを確認
 
 ## 使い方（例）
 ```
@@ -31,6 +33,12 @@ node tools/scripts/compile.js \
   --prove \
   --copy contracts/src/generated/Verifier.sol \
   --lib node_modules
+
+# 公開入力1bit改変テスト（verify=false を確認）
+node tools/scripts/test_public_mutation.js \
+  --vkey circuits/build/demo/paillier_demo.vkey.json \
+  --proof circuits/build/demo/paillier_demo.proof.json \
+  --public circuits/build/demo/paillier_demo.public.json
 ```
 
 ## 出力
