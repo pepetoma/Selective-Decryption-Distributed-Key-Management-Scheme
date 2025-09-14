@@ -13,7 +13,7 @@ circuits ディレクトリ
 ```
 node tools/scripts/compile.js \
   --circuit circuits/paillier_demo.circom \
-  --ptau tools/ptau/powersOfTau28_hez_final_10.ptau \
+  --ptau tools/ptau/powersOfTau28_hez_final_14.ptau \
   --out circuits/build/demo \
   --name VerifierPaillierDemo \
   --copy contracts/src/generated/Verifier.sol \
@@ -24,7 +24,7 @@ node tools/scripts/compile.js \
 ```
 node tools/scripts/compile.js \
   --circuit circuits/paillier_demo.circom \
-  --ptau tools/ptau/powersOfTau28_hez_final_10.ptau \
+  --ptau tools/ptau/powersOfTau28_hez_final_14.ptau \
   --out circuits/build/demo \
   --input circuits/input.demo.json \
   --prove \

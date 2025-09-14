@@ -4,8 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Use npm run test:public-mutation\"",
-    "test:public-mutation": "node tools/scripts/test_public_mutation.js --vkey circuits/build/demo/paillier_demo.vkey.json --proof circuits/build/demo/paillier_demo.proof.json --public circuits/build/demo/paillier_demo.public.json"
+    "test": "echo \"Use npm run e2e (or test:public-mutation)\"",
+    "build:circuits": "PATH=$PWD/tools/bin:$PWD/node_modules/.bin:$PATH node tools/scripts/compile.js --circuit circuits/paillier_demo.circom --ptau tools/ptau/powersOfTau28_hez_final_14.ptau --out circuits/build/demo --name VerifierPaillierDemo --copy contracts/src/generated/Verifier.sol --lib node_modules",
+    "build:proof": "PATH=$PWD/tools/bin:$PWD/node_modules/.bin:$PATH node tools/scripts/compile.js --circuit circuits/paillier_demo.circom --ptau tools/ptau/powersOfTau28_hez_final_14.ptau --out circuits/build/demo --input circuits/input.demo.json --prove --name VerifierPaillierDemo --copy contracts/src/generated/Verifier.sol --lib node_modules",
+    "test:public-mutation": "node tools/scripts/test_public_mutation.js --vkey circuits/build/demo/paillier_demo.vkey.json --proof circuits/build/demo/paillier_demo.proof.json --public circuits/build/demo/paillier_demo.public.json",
+    "test:contracts": "cd contracts && forge test -vvv",
+    "e2e": "npm run build:proof && npm run test:public-mutation && npm run test:contracts"
   },
   "repository": {
     "type": "git",

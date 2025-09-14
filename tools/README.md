@@ -4,7 +4,7 @@
 
 ## 前提
 - `circom` と `snarkjs` が PATH 上に存在すること（推奨: 固定バージョンを利用）
-- Powers of Tau（例: `powersOfTau28_hez_final_10.ptau`）ファイルをローカルに用意すること（`tools/ptau/` 配下。バイナリ自体はコミットしない）
+- Powers of Tau（推奨: `powersOfTau28_hez_final_14.ptau`、例として `..._10.ptau` でも可）ファイルをローカルに用意すること（`tools/ptau/` 配下。バイナリ自体はコミットしない）
 - Poseidon を利用するため `circomlib` をローカルに用意（推奨: `npm i circomlib` で `node_modules/circomlib` を配置）
 
 ## 主要スクリプト
@@ -18,7 +18,7 @@
 ```
 node tools/scripts/compile.js \
   --circuit circuits/paillier_demo.circom \
-  --ptau tools/ptau/powersOfTau28_hez_final_10.ptau \
+  --ptau tools/ptau/powersOfTau28_hez_final_14.ptau \
   --out circuits/build/demo \
   --name VerifierPaillierDemo \
   --copy contracts/src/generated/Verifier.sol \
@@ -27,7 +27,7 @@ node tools/scripts/compile.js \
 # 入力から witness と proof も作る場合
 node tools/scripts/compile.js \
   --circuit circuits/paillier_demo.circom \
-  --ptau tools/ptau/powersOfTau28_hez_final_10.ptau \
+  --ptau tools/ptau/powersOfTau28_hez_final_14.ptau \
   --out circuits/build/demo \
   --input circuits/input.demo.json \
   --prove \

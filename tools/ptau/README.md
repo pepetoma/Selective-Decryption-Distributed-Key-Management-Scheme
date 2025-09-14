@@ -2,7 +2,7 @@ ptau ファイル配置ガイド
 =======================
 
 概要
-- Groth16 セットアップに必要な Powers of Tau（例: `powersOfTau28_hez_final_10.ptau`）をこのディレクトリに配置してください。
+- Groth16 セットアップに必要な Powers of Tau（推奨: `powersOfTau28_hez_final_14.ptau`。例: `..._10.ptau` でも可）をこのディレクトリに配置してください。
 - セキュリティと容量の観点から ptau バイナリはリポジトリにコミットしないでください。
 
 .gitignore への追記を推奨
@@ -23,9 +23,8 @@ ptau ファイル配置ガイド
 
 配置例
 ```
-tools/ptau/powersOfTau28_hez_final_10.ptau
+tools/ptau/powersOfTau28_hez_final_14.ptau
 ```
 
 使い方
 - `tools/scripts/compile.js` の `--ptau` 引数に上記ファイルパスを渡してください。
-

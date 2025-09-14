@@ -58,7 +58,7 @@ function main() {
   if (args.help || !args.circuit || !args.ptau) {
     console.log(`Usage: node tools/scripts/compile.js \
       --circuit circuits/example.circom \
-      --ptau tools/ptau/powersOfTau28_hez_final_10.ptau \
+      --ptau tools/ptau/powersOfTau28_hez_final_14.ptau \
       --out build/example \
       [--name VerifierExample] \
       [--input input.json] [--prove] [--force] \
