@@ -29,6 +29,8 @@ contract VerifierRegistry {
 
     event AdapterSet(uint256 indexed circuitVersion, address indexed adapter);
     event Verified(
+        uint256 n,
+        uint256 g,
         uint256 c,
         uint256 h_m,
         uint256 circuitVersion,
@@ -67,8 +69,7 @@ contract VerifierRegistry {
         require(ok, "verify false");
 
         consumed[sessionID] = true;
-        emit Verified(c, h_m, circuitVersion, sessionID);
+        emit Verified(n, g, c, h_m, circuitVersion, sessionID);
         return true;
     }
 }
-
