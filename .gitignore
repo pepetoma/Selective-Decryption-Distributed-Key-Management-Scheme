@@ -31,3 +31,11 @@ SECURITY_MODEL.md
 GLOSSARY.md
 PROJECT_OVERVIEW.md
 TASKS.md
+
+# Ignore Powers of Tau binaries stored under tools/ptau
+# 理由: 大きなバイナリはリポジトリ肥大化とセキュリティの観点からコミットしないため
+/tools/ptau/*.ptau
+/tools/ptau/*.ptau.*
+
+# Keep the README in the ptau directory tracked
+!/tools/ptau/README.md
