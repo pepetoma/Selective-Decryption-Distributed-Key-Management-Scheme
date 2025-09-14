@@ -62,7 +62,8 @@ function main() {
       --out build/example \
       [--name VerifierExample] \
       [--input input.json] [--prove] [--force] \
-      [--copy contracts/src/generated/Verifier.sol]
+      [--copy contracts/src/generated/Verifier.sol] \
+      [--lib <dir>[,<dir2>...]]
 
     必須: --circuit, --ptau
     省略時: --out は circuit と同階層に build/<basename>
@@ -98,6 +99,8 @@ function main() {
   const name = args.name || `Verifier_${base}`;
   const force = !!args.force;
   const copyDest = args.copy ? path.resolve(args.copy) : null;
+  const libDirsRaw = args.lib ? (Array.isArray(args.lib) ? args.lib : [args.lib]) : [];
+  const libDirs = libDirsRaw.flatMap(s => s.split(',')).map(s => s.trim()).filter(Boolean);
   ensureDir(outDir);
 
   const r1cs = path.join(outDir, `${base}.r1cs`);
@@ -112,7 +115,8 @@ function main() {
   // 1) circom compile
   if (!fs.existsSync(r1cs) || !fs.existsSync(wasm) || force) {
     console.log('==> Compile circom to r1cs/wasm');
-    sh(`circom ${circuitPath} --r1cs --wasm -o ${outDir}`);
+    const libFlags = libDirs.length ? libDirs.map(d => `-l ${d}`).join(' ') : '';
+    sh(`circom ${circuitPath} --r1cs --wasm -o ${outDir} ${libFlags}`);
   } else {
     console.log('skip circom compile (found cache)');
   }

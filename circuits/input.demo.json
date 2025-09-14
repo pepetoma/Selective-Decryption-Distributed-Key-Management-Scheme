@@ -1,9 +1,11 @@
 {
-  "n": 1,
-  "g": 2,
-  "c": 3,
-  "h_m": 4,
+  "n": 7,
+  "g": 8,
+  "c": 22,
+  "h_m": 3,
   "circuitVersion": 1,
-  "sessionID": 42
+  "sessionID": 42,
+  "lambda": 1,
+  "mu": 1,
+  "m": 3
 }
-

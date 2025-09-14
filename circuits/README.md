@@ -5,8 +5,8 @@ circuits ディレクトリ
 - Circom 回路とサンプル入力を管理します。MVP では `paillier_demo.circom` を仮の骨格として用意しています。
 
 構成
-- `paillier_demo.circom`: 公開入力 `[n, g, c, h_m, circuitVersion, sessionID]` を受け取り、デモとして `ok=1` を出力する最小回路。
-- `input.demo.json`: 生成・検証の動作確認用の最小入力。
+- `paillier_demo.circom`: 公開入力 `[n, g, c, h_m, circuitVersion, sessionID]` と秘密入力 `[lambda, mu, m]` を受け取り、Paillier復号の整合（小ビット長・MVP）を検査します。
+- `input.demo.json`: 生成・検証の動作確認用の最小入力（`n=7, g=8, c=22, lambda=1, mu=1, m=3, h_m=3`）。
 - `build/`: `tools/scripts/compile.js` により生成される成果物の配置先。
 
 ビルド例
@@ -16,7 +16,8 @@ node tools/scripts/compile.js \
   --ptau tools/ptau/powersOfTau28_hez_final_10.ptau \
   --out circuits/build/demo \
   --name VerifierPaillierDemo \
-  --copy contracts/src/generated/Verifier.sol
+  --copy contracts/src/generated/Verifier.sol \
+  --lib node_modules
 ```
 
 証明作成（任意）
@@ -27,11 +28,12 @@ node tools/scripts/compile.js \
   --out circuits/build/demo \
   --input circuits/input.demo.json \
   --prove \
-  --copy contracts/src/generated/Verifier.sol
+  --copy contracts/src/generated/Verifier.sol \
+  --lib node_modules
 ```
 
 Solidity への反映
-- 生成された `VerifierPaillierDemo.sol` を `contracts/src/generated/Verifier.sol` に配置し、`forge build` / `forge test` で確認してください。
+- 生成された `VerifierPaillierDemo.sol` を `contracts/src/generated/Verifier.sol` に配置（`--copy` を使用可能）し、`forge build` / `forge test` で確認してください。
 
 注意
-- 本回路は骨格のみで、Paillier 復号や Poseidon などの制約は未実装です。Phase 1 の実装で順次拡張します。
+- 小ビット長MVPです。`Poseidon(m)=h_m` は将来置換（現状は恒等 `h_m == m`）。Phase 1 にてハッシュ・大整数最適化を拡張します。
