@@ -61,7 +61,8 @@ function main() {
       --ptau tools/ptau/powersOfTau28_hez_final_10.ptau \
       --out build/example \
       [--name VerifierExample] \
-      [--input input.json] [--prove] [--force]
+      [--input input.json] [--prove] [--force] \
+      [--copy contracts/src/generated/Verifier.sol]
 
     必須: --circuit, --ptau
     省略時: --out は circuit と同階層に build/<basename>
@@ -96,6 +97,7 @@ function main() {
   const outDir = path.resolve(args.out || path.join(path.dirname(circuitPath), 'build', base));
   const name = args.name || `Verifier_${base}`;
   const force = !!args.force;
+  const copyDest = args.copy ? path.resolve(args.copy) : null;
   ensureDir(outDir);
 
   const r1cs = path.join(outDir, `${base}.r1cs`);
@@ -152,6 +154,13 @@ function main() {
     console.log('skip export verifier (found cache)');
   }
 
+  // 4.5) optional copy to contracts
+  if (copyDest) {
+    ensureDir(path.dirname(copyDest));
+    fs.copyFileSync(verifier, copyDest);
+    console.log('==> Copied Verifier to', copyDest);
+  }
+
   // 5) manifest
   console.log('==> Write manifest.json');
   const manifest = {
@@ -188,4 +197,3 @@ function main() {
 if (require.main === module) {
   try { main(); } catch (e) { console.error(e.message); process.exit(1); }
 }
-

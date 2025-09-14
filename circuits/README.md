@@ -15,7 +15,8 @@ node tools/scripts/compile.js \
   --circuit circuits/paillier_demo.circom \
   --ptau tools/ptau/powersOfTau28_hez_final_10.ptau \
   --out circuits/build/demo \
-  --name VerifierPaillierDemo
+  --name VerifierPaillierDemo \
+  --copy contracts/src/generated/Verifier.sol
 ```
 
 証明作成（任意）
@@ -25,7 +26,8 @@ node tools/scripts/compile.js \
   --ptau tools/ptau/powersOfTau28_hez_final_10.ptau \
   --out circuits/build/demo \
   --input circuits/input.demo.json \
-  --prove
+  --prove \
+  --copy contracts/src/generated/Verifier.sol
 ```
 
 Solidity への反映
@@ -33,4 +35,3 @@ Solidity への反映
 
 注意
 - 本回路は骨格のみで、Paillier 復号や Poseidon などの制約は未実装です。Phase 1 の実装で順次拡張します。
-

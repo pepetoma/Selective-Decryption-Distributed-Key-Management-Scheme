@@ -17,7 +17,8 @@ node tools/scripts/compile.js \
   --circuit circuits/paillier_demo.circom \
   --ptau tools/ptau/powersOfTau28_hez_final_10.ptau \
   --out circuits/build/demo \
-  --name VerifierPaillierDemo
+  --name VerifierPaillierDemo \
+  --copy contracts/src/generated/Verifier.sol
 
 # 入力から witness と proof も作る場合
 node tools/scripts/compile.js \
@@ -25,7 +26,8 @@ node tools/scripts/compile.js \
   --ptau tools/ptau/powersOfTau28_hez_final_10.ptau \
   --out circuits/build/demo \
   --input circuits/input.demo.json \
-  --prove
+  --prove \
+  --copy contracts/src/generated/Verifier.sol
 ```
 
 ## 出力
@@ -42,4 +44,3 @@ node tools/scripts/compile.js \
    - 例: `cp circuits/build/demo/VerifierPaillierDemo.sol contracts/src/generated/Verifier.sol`
 3. `contracts/` で `forge build` もしくは `forge test` を実行しコンパイル確認
 4. オンチェーン側は `VerifierRegistry.setAdapter(circuitVersion, address(new VerifierAdapter(<Verifierアドレス>)))` を実行して登録
-
