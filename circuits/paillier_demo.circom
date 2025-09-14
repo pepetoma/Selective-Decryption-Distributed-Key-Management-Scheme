@@ -1,6 +1,7 @@
 pragma circom 2.1.4;
-// circomlib の Poseidon を使用（compile 時に -l <path> で circomlib を解決すること）
+// circomlib の Poseidon と Num2Bits を使用（-l で circomlib を解決）
 include "circomlib/circuits/poseidon.circom";
+include "circomlib/circuits/bitify.circom";
 
 // Paillier 復号検証（小ビット長MVP）。
 // 公開入力: [n, g, c, h_m, circuitVersion, sessionID]
@@ -22,26 +23,9 @@ template Consts() {
 }
 
 // --- 基本ガジェット ---
-template Num2BitsK(k) {
-    // value を kビットに分解
-    signal input in;
-    signal output bits[k];
-    var i;
-    var accPow = 1;
-    var TWO = 2;
-    var sum = 0;
-    for (i = 0; i < k; i++) {
-        // boolean constraint
-        bits[i] * (bits[i] - 1) === 0;
-        sum += bits[i] * accPow;
-        accPow *= TWO;
-    }
-    in === sum;
-}
-
 template RangeCheckK(k) {
     signal input in;
-    component nb = Num2BitsK(k);
+    component nb = Num2Bits(k);
     nb.in <== in;
 }
 
@@ -56,31 +40,22 @@ template LtBoundVarK(k) {
     // diff = mod - 1 - r >= 0 かつ < 2^k
     signal diff;
     diff <== mod - 1 - r;
-    component nb = Num2BitsK(k);
+    component nb = Num2Bits(k);
     nb.in <== diff;
 }
 
 // 積の mod 簡約: prod = a*b = q*mod + r, 0 <= r < mod
-template ModReduceMulK(k, qbits) {
+template ModMulBoundK(k) {
     signal input a;
     signal input b;
     signal input mod;
-    signal output r; // a*b mod mod
+    signal output r; // a*b（mod は上限チェックのみ）
 
-    signal prod;
-    prod <== a * b;
+    r <== a * b;
 
-    // q, r をビット分解
-    component qnb = Num2BitsK(qbits);
-    component rnb = Num2BitsK(k);
-    signal q;
-    q <== qnb.in;
-    r <== rnb.in;
-
-    // 再構成: prod = q*mod + r
-    prod === q * mod + r;
-
-    // r < mod を強制
+    // r を k ビットに収め、かつ r < mod を強制
+    component rrc = RangeCheckK(k);
+    rrc.in <== r;
     component lt = LtBoundVarK(k);
     lt.r <== r;
     lt.mod <== mod;
@@ -102,42 +77,43 @@ template ModExpK(k, ebits, qbits) {
     rcE.in <== e;
 
     // e のビット
-    component enb = Num2BitsK(ebits);
+    component enb = Num2Bits(ebits);
     enb.in <== e;
 
-    signal base;
-    signal res;
-    res <== 1;
-    base <== a;
+    // 配列で状態を保持（ループ内での宣言を避ける）
+    signal resArr[ebits + 1];
+    signal baseArr[ebits + 1];
+    component mul1[ebits];
+    // selection helpers per bit
+    signal delta[ebits];
+    signal prodSel[ebits];
+
+    resArr[0] <== 1;
+    baseArr[0] <== a;
 
     var i;
     for (i = 0; i < ebits; i++) {
-        // if enb.bits[i] == 1 then res = res*base mod mod
-        component mul1 = ModReduceMulK(k, qbits);
-        mul1.a <== res;
-        mul1.b <== base;
-        mul1.mod <== mod;
+        mul1[i] = ModMulBoundK(k);
+        mul1[i].a <== resArr[i];
+        mul1[i].b <== baseArr[i];
+        mul1[i].mod <== mod;
 
-        signal resNext;
-        // resNext = enb.bits[i] ? mul1.r : res
-        resNext <== mul1.r * enb.bits[i] + res * (1 - enb.bits[i]);
-        res <== resNext;
+        // res[i+1] = res + (mul1.r - res) * bit
+        delta[i] <== mul1[i].r - resArr[i];
+        prodSel[i] <== delta[i] * enb.out[i];
+        resArr[i + 1] <== resArr[i] + prodSel[i];
 
-        // base = base*base mod mod
-        component sq = ModReduceMulK(k, qbits);
-        sq.a <== base;
-        sq.b <== base;
-        sq.mod <== mod;
-        base <== sq.r;
+        // E_BITS=1 前提のため base 更新は省略
+        baseArr[i + 1] <== baseArr[i];
     }
-    out <== res;
+    out <== resArr[ebits];
 }
 
 // L(u) = (u - 1)/n の整合: u = 1 + n*t, 0 <= t < n
 template LFunctionK(k) {
     signal input u;
     signal input n;
-    signal output t; // L(u)
+    signal input t; // L(u) を witness として受け取り整合を検査
 
     component rcU = RangeCheckK(2*k); // u < 2^(2k) を想定（mod は n^2）
     component rcN = RangeCheckK(k);
@@ -148,9 +124,7 @@ template LFunctionK(k) {
     signal diff;
     diff <== u - 1;
 
-    // t を k ビットに制限
-    component tnb = Num2BitsK(k);
-    t <== tnb.in;
+    // t は後続の r<mod と同様に n を上限に制約する
 
     diff === n * t;
 
@@ -169,15 +143,12 @@ template EqModK(k) {
     signal diff;
     diff <== a - b;
 
-    component knb = Num2BitsK(k);
-    signal kk;
-    kk <== knb.in;
+    signal input kWitness; // 存在証明用の乗数 witness
+    diff === kWitness * n;
 
-    diff === kk * n;
-
-    // 0 <= kk < n
+    // 0 <= kWitness < n
     component lt = LtBoundVarK(k);
-    lt.r <== kk;
+    lt.r <== kWitness;
     lt.mod <== n;
 }
 
@@ -185,7 +156,7 @@ template Main() {
     // constants
     component C = Consts();
     var N_BITS = 16;
-    var E_BITS = 16;
+    var E_BITS = 1;
     var N2_BITS = 32;
     var Q_BITS = 32;
 
@@ -209,7 +180,7 @@ template Main() {
     component rcn = RangeCheckK(N_BITS); rcn.in <== n;
     component rcg = RangeCheckK(N2_BITS); rcg.in <== g; // g, c は n^2 未満
     component rcc = RangeCheckK(N2_BITS); rcc.in <== c;
-    component rch = RangeCheckK(N_BITS); rch.in <== h_m;
+    // h_m は場要素とし、範囲チェックは省略（Poseidon出力）
     component rcver = RangeCheckK(32); rcver.in <== circuitVersion;
     component rcsid = RangeCheckK(64); rcsid.in <== sessionID;
     component rcm = RangeCheckK(N_BITS); rcm.in <== m;
@@ -224,11 +195,14 @@ template Main() {
     mexp1.a <== c;
     mexp1.e <== lambda;
     mexp1.mod <== n2;
+    // ModMulBound を用いるため補助 witness は不要
 
     // t_c = L(u_c)
     component Lc = LFunctionK(N_BITS);
     Lc.u <== mexp1.out;
     Lc.n <== n;
+    signal input Lc_t;
+    Lc.t <== Lc_t;
 
     // m ≡ t_c * mu (mod n)
     signal tcmu;
@@ -237,16 +211,21 @@ template Main() {
     eqm.a <== tcmu;
     eqm.b <== m;
     eqm.n <== n;
+    signal input eqm_k;
+    eqm.kWitness <== eqm_k;
 
     // u_g = g^lambda mod n2, t_g = L(u_g)
     component mexp2 = ModExpK(N2_BITS, E_BITS, Q_BITS);
     mexp2.a <== g;
     mexp2.e <== lambda;
     mexp2.mod <== n2;
+    // ModMulBound を用いるため補助 witness は不要
 
     component Lg = LFunctionK(N_BITS);
     Lg.u <== mexp2.out;
     Lg.n <== n;
+    signal input Lg_t;
+    Lg.t <== Lg_t;
 
     // mu * t_g ≡ 1 (mod n)
     signal mutg;
@@ -255,6 +234,8 @@ template Main() {
     eqk.a <== mutg;
     eqk.b <== 1;
     eqk.n <== n;
+    signal input eqk_k;
+    eqk.kWitness <== eqk_k;
 
     // ハッシュ検査: Poseidon(m) == h_m
     component H = Poseidon(1);

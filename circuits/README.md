@@ -36,4 +36,5 @@ Solidity への反映
 - 生成された `VerifierPaillierDemo.sol` を `contracts/src/generated/Verifier.sol` に配置（`--copy` を使用可能）し、`forge build` / `forge test` で確認してください。
 
 注意
-- 小ビット長MVPです。`Poseidon(m)=h_m` は将来置換（現状は恒等 `h_m == m`）。Phase 1 にてハッシュ・大整数最適化を拡張します。
+- 小ビット長MVPです。乗算・mod簡約は最小の整合検査のみで、最適化や厳密化は今後の段階で拡張します。
+- snarkjs の入力（特に `h_m` のような大きな値）は 64bit を超えるため、JSON では必ず文字列で指定してください（例: `"h_m": "12345..."`）。
