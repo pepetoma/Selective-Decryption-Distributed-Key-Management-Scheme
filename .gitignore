@@ -98,5 +98,8 @@ contracts/src/generated/Verifier.sol
 # ダウンロードしたバイナリ（再取得可能）
 tools/bin/
 
+# ローカルFlutter SDKコピー（/opt/flutterの書込権限回避のため作成する場合）
+flutter-sdk/
+
 # AGENTS.md
 AGENTS.md
