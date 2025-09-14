@@ -1,0 +1,9 @@
+[workspace]
+members = [
+  "sddkm-lib",
+  "backend",
+]
+
+[workspace.package]
+edition = "2021"
+
