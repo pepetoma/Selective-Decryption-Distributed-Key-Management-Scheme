@@ -23,14 +23,19 @@ pub struct PaillierDemoInput {
     pub n: u64,
     pub g: u64,
     pub c: u64,
+    #[serde(rename = "h_m")]
     pub h_m: String,
-    pub circuitVersion: u64,
-    pub sessionID: u64,
+    #[serde(rename = "circuitVersion")]
+    pub circuit_version: u64,
+    #[serde(rename = "sessionID")]
+    pub session_id: u64,
     pub lambda: u64,
     pub mu: u64,
     pub m: u64,
-    pub Lc_t: u64,
-    pub Lg_t: u64,
+    #[serde(rename = "Lc_t")]
+    pub lc_t: u64,
+    #[serde(rename = "Lg_t")]
+    pub lg_t: u64,
     pub eqm_k: u64,
     pub eqk_k: u64,
 }
@@ -135,15 +140,22 @@ mod tests {
     fn e2e_demo_prove_and_verify() -> Result<()> {
         // Circuits のデモ値と整合
         let input = PaillierDemoInput {
-            n: 7, g: 8, c: 22,
+            n: 7,
+            g: 8,
+            c: 22,
             h_m: "6018413527099068561047958932369318610297162528491556075919075208700178480084".to_string(),
-            circuitVersion: 1, sessionID: 42,
-            lambda: 1, mu: 1, m: 3,
-            Lc_t: 3, Lg_t: 1, eqm_k: 0, eqk_k: 0,
+            circuit_version: 1,
+            session_id: 42,
+            lambda: 1,
+            mu: 1,
+            m: 3,
+            lc_t: 3,
+            lg_t: 1,
+            eqm_k: 0,
+            eqk_k: 0,
         };
         let res = prove_demo_with_tools(&input)?;
         verify_offchain(&res.vkey_json, &res.proof, &res.public_json)?;
         Ok(())
     }
 }
-
