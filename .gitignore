@@ -39,3 +39,61 @@ TASKS.md
 
 # Keep the README in the ptau directory tracked
 !/tools/ptau/README.md
+
+# Node / npm
+node_modules/
+.npm/
+.npm-cache/
+
+# npm / yarn / pnpm debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Do NOT ignore lockfiles (package-lock.json / yarn.lock / pnpm-lock.yaml) — commit them for reproducible installs
+!package-lock.json
+!yarn.lock
+!pnpm-lock.yaml
+
+# Build / output / coverage
+dist/
+out/
+coverage/
+.nyc_output/
+.eslintcache
+*.tsbuildinfo
+
+# Caches used by various bundlers / tools
+.cache/
+.cache-loader/
+.vite/
+.parcel-cache/
+
+# Framework/tool specific caches / outputs
+.next/
+.nuxt/
+.serverless/
+
+# Generated/bundled artifacts
+*.bundle.js
+*.min.js
+
+# Circom ビルド成果物（生成物）
+circuits/build/
+circuits/**/build/
+circuits/**/*.r1cs
+circuits/**/*.zkey
+circuits/**/*.vkey.json
+circuits/**/*.wtns
+circuits/**/*.wasm
+circuits/**/*.proof.json
+circuits/**/*.public.json
+circuits/**/manifest.json
+
+# 生成された Verifier（snarkjs 出力）
+# 理由: ビルドごとに差分が大きく、再生成可能なため。必要時はCIやリリース工程で生成・配置する。
+contracts/src/generated/Verifier.sol
+
+# ダウンロードしたバイナリ（再取得可能）
+tools/bin/
