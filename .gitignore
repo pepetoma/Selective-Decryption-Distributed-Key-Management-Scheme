@@ -97,3 +97,6 @@ contracts/src/generated/Verifier.sol
 
 # ダウンロードしたバイナリ（再取得可能）
 tools/bin/
+
+# AGENTS.md
+AGENTS.md
