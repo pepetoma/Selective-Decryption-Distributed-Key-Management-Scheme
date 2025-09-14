@@ -104,7 +104,7 @@ function main() {
   ensureDir(outDir);
 
   const r1cs = path.join(outDir, `${base}.r1cs`);
-  const wasm = path.join(outDir, `${base}.wasm`);
+  let wasm = path.join(outDir, `${base}.wasm`); // circom v1 style
   const zkey = path.join(outDir, `${base}.zkey`);
   const vkey = path.join(outDir, `${base}.vkey.json`);
   const verifier = path.join(outDir, `${name}.sol`);
@@ -113,12 +113,18 @@ function main() {
   const publicSignals = path.join(outDir, `${base}.public.json`);
 
   // 1) circom compile
-  if (!fs.existsSync(r1cs) || !fs.existsSync(wasm) || force) {
+  if (!fs.existsSync(r1cs) || force) {
     console.log('==> Compile circom to r1cs/wasm');
     const libFlags = libDirs.length ? libDirs.map(d => `-l ${d}`).join(' ') : '';
     sh(`circom ${circuitPath} --r1cs --wasm -o ${outDir} ${libFlags}`);
   } else {
     console.log('skip circom compile (found cache)');
+  }
+
+  // Resolve wasm path for circom v2 (base_js/base.wasm) if needed
+  const wasmV2 = path.join(outDir, `${base}_js`, `${base}.wasm`);
+  if (fs.existsSync(wasmV2)) {
+    wasm = wasmV2;
   }
 
   // 2) groth16 setup
@@ -153,7 +159,12 @@ function main() {
   // 4) export solidity verifier
   if (!fs.existsSync(verifier) || force) {
     console.log('==> Export Solidity Verifier');
-    sh(`snarkjs zkey export solidityverifier ${zkey} ${verifier} --name ${name}`);
+    try {
+      sh(`snarkjs zkey export solidityverifier ${zkey} ${verifier} --name ${name}`);
+    } catch (e) {
+      console.log('fallback: export solidityverifier without --name');
+      sh(`snarkjs zkey export solidityverifier ${zkey} ${verifier}`);
+    }
   } else {
     console.log('skip export verifier (found cache)');
   }
