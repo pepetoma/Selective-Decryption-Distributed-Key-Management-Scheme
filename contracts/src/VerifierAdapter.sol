@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.20;
 
-import {IVerifier} from "./interfaces/IVerifier.sol";
+import {IVerifier6} from "./interfaces/IVerifier6.sol";
 
 /// @title VerifierAdapter
 /// @notice 公開入力のABI順序を固定し、生成された Verifier に委譲する薄いアダプタ
 /// @dev 公開入力の順序を [n, g, c, h_m, circuitVersion, sessionID] に固定する
 contract VerifierAdapter {
-    IVerifier public immutable verifier;
+    IVerifier6 public immutable verifier;
 
     constructor(address verifier_) {
         require(verifier_ != address(0), "verifier=0");
-        verifier = IVerifier(verifier_);
+        verifier = IVerifier6(verifier_);
     }
 
     /// @notice 公開入力を固定順序で配列化し、Verifier に委譲して真偽を返す
@@ -35,14 +35,7 @@ contract VerifierAdapter {
         uint256[2][2] calldata b,
         uint256[2] calldata c_
     ) external view returns (bool ok) {
-        uint256[] memory input = new uint256[](6);
-        input[0] = n;
-        input[1] = g;
-        input[2] = c;
-        input[3] = h_m;
-        input[4] = circuitVersion;
-        input[5] = sessionID;
+        uint256[6] memory input = [n, g, c, h_m, circuitVersion, sessionID];
         return verifier.verifyProof(a, b, c_, input);
     }
 }
-

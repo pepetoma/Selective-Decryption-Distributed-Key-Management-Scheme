@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.20;
 
-import {IVerifier} from "../src/interfaces/IVerifier.sol";
+import {IVerifier6} from "../src/interfaces/IVerifier6.sol";
 import {VerifierAdapter} from "../src/VerifierAdapter.sol";
 import {VerifierRegistry} from "../src/VerifierRegistry.sol";
 
-contract MockVerifier is IVerifier {
+contract MockVerifier is IVerifier6 {
     uint256[6] public expected;
 
     function setExpected(
@@ -23,9 +23,8 @@ contract MockVerifier is IVerifier {
         uint256[2] calldata,
         uint256[2][2] calldata,
         uint256[2] calldata,
-        uint256[] calldata input
+        uint256[6] calldata input
     ) external view returns (bool r) {
-        require(input.length == 6, "bad len");
         for (uint256 i = 0; i < 6; i++) {
             require(input[i] == expected[i], "bad order");
         }

@@ -1,26 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.20;
 
-import {IVerifier} from "../src/interfaces/IVerifier.sol";
 import {VerifierAdapter} from "../src/VerifierAdapter.sol";
 import {VerifierRegistry} from "../src/VerifierRegistry.sol";
 import {Groth16Verifier} from "../src/generated/Verifier.sol";
-
-/// @notice snarkjs 生成の Groth16Verifier を IVerifier にアダプトするテスト用ラッパ（公開入力は [1] 固定）
-contract VerifierWrapper is IVerifier {
-    Groth16Verifier public immutable inner;
-    constructor(address v) { inner = Groth16Verifier(v); }
-    function verifyProof(
-        uint256[2] calldata a,
-        uint256[2][2] calldata b,
-        uint256[2] calldata c,
-        uint256[] calldata input
-    ) external view returns (bool r) {
-        require(input.length == 6, "len");
-        uint256[6] memory pub = [input[0], input[1], input[2], input[3], input[4], input[5]];
-        return inner.verifyProof(a, b, c, pub);
-    }
-}
 
 contract E2ERegistryTest {
     function _proofA() internal pure returns (uint256[2] memory a) {
@@ -50,8 +33,7 @@ contract E2ERegistryTest {
     function testRegistryE2ETrueAndConsume() public {
         // 1) 準備: 生成 Verifier とラッパ、Adapter、Registry
         Groth16Verifier v = new Groth16Verifier();
-        VerifierWrapper w = new VerifierWrapper(address(v));
-        VerifierAdapter adapter = new VerifierAdapter(address(w));
+        VerifierAdapter adapter = new VerifierAdapter(address(v));
         VerifierRegistry reg = new VerifierRegistry();
         uint256 circuitVersion = 1;
         reg.setAdapter(circuitVersion, address(adapter));
